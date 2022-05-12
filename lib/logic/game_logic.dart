@@ -31,7 +31,7 @@ class Game {
       return Winner.X;
     } else if (Player.playersO.containsAll(0, 1, 2) ||
         Player.playersO.containsAll(0, 3, 6) ||
-        Player.playersX.containsAll(1, 4, 7) ||
+        Player.playersO.containsAll(1, 4, 7) ||
         Player.playersO.containsAll(6, 7, 8) ||
         Player.playersO.containsAll(2, 5, 8) ||
         Player.playersO.containsAll(3, 4, 5) ||
