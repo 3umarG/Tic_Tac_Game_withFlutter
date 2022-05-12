@@ -3,6 +3,8 @@ import 'package:x_o_game/themes/theme.dart';
 
 import '../logic/game_logic.dart';
 
+enum Players { X, O }
+
 class GamePage extends StatefulWidget {
   const GamePage({super.key});
 
@@ -11,7 +13,7 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  String activePlayer = "X".toUpperCase();
+  Players activePlayer = Players.X;
   bool isGameOver = false;
   int turn = 0;
   String result = "";
@@ -23,32 +25,35 @@ class _GamePageState extends State<GamePage> {
       body: SafeArea(
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Center(
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 50,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w900,
-                      color: MyTheme.red,
-                    ),
-                    children: [
-                      TextSpan(text: "It's  ".toUpperCase()),
-                      TextSpan(
-                        text: "X".toUpperCase(),
-                        style: TextStyle(
-                          color: MyTheme.orange,
-                          fontSize: 55,
-                        ),
-                      ),
-                      TextSpan(text: "  Turn".toUpperCase()),
-                    ],
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontFamily: "Poppins",
+                    fontWeight: FontWeight.w600,
+                    color: MyTheme.red,
                   ),
+                  children: [
+                    TextSpan(text: "It's  ".toUpperCase()),
+                    TextSpan(
+                      text: activePlayer == Players.X ? "X" : "O",
+                      style: TextStyle(
+                        color: activePlayer == Players.X
+                            ? MyTheme.orange
+                            : MyTheme.green,
+                        fontSize: 60,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    TextSpan(text: "  Turn".toUpperCase()),
+                  ],
                 ),
               ),
-              Expanded(
+              Container(
+                height: 450,
                 child: GridView.count(
                   padding: const EdgeInsets.all(16),
                   crossAxisCount: 3,
@@ -59,7 +64,11 @@ class _GamePageState extends State<GamePage> {
                     9,
                     (index) => InkWell(
                       borderRadius: BorderRadius.circular(16),
-                      onTap: isGameOver ? null : () => _onTap(index),
+                      onTap: isGameOver ||
+                              Player.playersX.contains(index) ||
+                              Player.playersO.contains(index)
+                          ? null
+                          : () => _onTap(index),
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.4),
@@ -67,11 +76,17 @@ class _GamePageState extends State<GamePage> {
                         ),
                         child: Center(
                           child: Text(
-                            "x".toUpperCase(),
+                            Player.playersX.contains(index)
+                                ? "x".toUpperCase()
+                                : Player.playersO.contains(index)
+                                    ? "o".toUpperCase()
+                                    : "",
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 100,
-                              color: MyTheme.orange,
+                              color: Player.playersX.contains(index)
+                                  ? MyTheme.orange
+                                  : MyTheme.green,
                             ),
                           ),
                         ),
@@ -83,18 +98,25 @@ class _GamePageState extends State<GamePage> {
               ElevatedButton.icon(
                 onPressed: () {
                   setState(() {
-                    activePlayer = "X".toUpperCase();
+                    activePlayer = Players.X;
                     isGameOver = false;
                     turn = 0;
                     result = "";
+                    Player.playersX = [];
+                    Player.playersO = [];
                   });
                 },
                 icon: const Icon(Icons.replay),
-                label: const Text("Repeat the Game"),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Theme.of(context).splashColor),
+                label: const Text(
+                  "Repeat the Game",
+                  style: TextStyle(fontSize: 25),
                 ),
+                style: ButtonStyle(
+                    fixedSize:
+                        MaterialStateProperty.all(const Size.fromHeight(50)),
+                    backgroundColor: MaterialStateProperty.all(
+                      MyTheme.red,
+                    )),
               ),
             ],
           ),
@@ -104,6 +126,9 @@ class _GamePageState extends State<GamePage> {
   }
 
   _onTap(int index) {
-    game.playGame(index, activePlayer);
+    setState(() {
+      game.playGame(index, activePlayer);
+      activePlayer = (activePlayer == Players.X) ? Players.O : Players.X;
+    });
   }
 }

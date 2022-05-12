@@ -1,3 +1,5 @@
+import 'package:x_o_game/pages/game_page.dart';
+
 class Player {
   static const x = "X";
   static const o = "O";
@@ -9,7 +11,13 @@ class Player {
 }
 
 class Game {
-  void playGame(int index, String activePlayer) {}
+  void playGame(int index, Players activePlayer) {
+    if (activePlayer == Players.X) {
+      Player.playersX.add(index);
+    } else {
+      Player.playersO.add(index);
+    }
+  }
 
   void checkWinner() {}
 }
