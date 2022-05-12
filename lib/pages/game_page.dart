@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:x_o_game/themes/theme.dart';
+import 'package:x_o_game/widgets/button.dart';
 
 import '../logic/game_logic.dart';
 
@@ -53,7 +54,7 @@ class _GamePageState extends State<GamePage> {
                 ),
               ),
               Container(
-                height: 450,
+                height: 500,
                 child: GridView.count(
                   padding: const EdgeInsets.all(16),
                   crossAxisCount: 3,
@@ -96,16 +97,7 @@ class _GamePageState extends State<GamePage> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    activePlayer = Players.X;
-                    isGameOver = false;
-                    turn = 0;
-                    result = "";
-                    Player.playersX = [];
-                    Player.playersO = [];
-                  });
-                },
+                onPressed: repeatGame,
                 icon: const Icon(Icons.replay),
                 label: const Text(
                   "Repeat the Game",
@@ -126,9 +118,74 @@ class _GamePageState extends State<GamePage> {
   }
 
   _onTap(int index) {
+    game.playGame(index, activePlayer);
     setState(() {
-      game.playGame(index, activePlayer);
       activePlayer = (activePlayer == Players.X) ? Players.O : Players.X;
     });
+    Winner? theWinner = game.checkWinner();
+    if (theWinner == Winner.X) {
+      ShowDialogueResult(Winner.X);
+    } else if (theWinner == Winner.O) {
+      ShowDialogueResult(Winner.O);
+    } else if (theWinner == Winner.noOne) {
+      ShowDialogueResult(Winner.noOne);
+    }
+  }
+
+  void repeatGame() {
+    setState(() {
+      activePlayer = Players.X;
+      isGameOver = false;
+      turn = 0;
+      result = "";
+      Player.playersX = [];
+      Player.playersO = [];
+    });
+  }
+
+  void ShowDialogueResult(Winner winner) {
+    showDialog(
+      context: context,
+      builder: (constext) => AlertDialog(
+        title: const Text(
+          "The Result",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(
+              MyTheme.red,
+            )),
+            onPressed: () {
+              repeatGame();
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              "Repeat the Game",
+            ),
+          ),
+        ],
+        content: Text(
+          winner == Winner.X
+              ? "X the Winner"
+              : winner == Winner.O
+                  ? "O the Winner"
+                  : "There is No Winner",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: winner == Winner.X
+                ? MyTheme.orange
+                : winner == Winner.O
+                    ? MyTheme.green
+                    : MyTheme.red,
+          ),
+        ),
+      ),
+    );
   }
 }
